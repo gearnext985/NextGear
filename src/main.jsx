@@ -1,15 +1,8 @@
-import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import './index.css'
-import App from './App.jsx'
-
-import { Provider } from 'react-redux'
-import { store } from './store/store'
 
 createRoot(document.getElementById('root')).render(
-  <StrictMode>
-    <Provider store={store}>
-      <App />
-    </Provider>
-  </StrictMode>,
+  <div style={{ padding: '50px', color: 'black' }}>
+    <h1>Main.jsx Root Test</h1>
+    <p>If you see this, React is mounting correctly on the root element.</p>
+  </div>
 )
