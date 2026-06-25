@@ -83,7 +83,7 @@ const Login = () => {
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        placeholder="admin@nextgear.com"
+                        placeholder="email id"
                         style={{ width: '100%', padding: '14px', borderRadius: '12px', border: '1px solid #333', backgroundColor: '#050505', color: 'white' }}
                         required
                     />
