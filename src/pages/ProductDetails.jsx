@@ -37,30 +37,30 @@ const ProductDetails = () => {
         <div style={{ backgroundColor: '#050505', minHeight: '100vh', color: 'white', fontFamily: 'Outfit, sans-serif' }}>
             <Navbar />
 
-            <main style={{ padding: '120px 10% 80px 10%', display: 'grid', gridTemplateColumns: 'minmax(400px, 1fr) 1fr', gap: '5rem' }}>
+            <main className="responsive-section grid-responsive" style={{ paddingTop: '120px', paddingBottom: '80px' }}>
                 {/* Left: Images */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-                    <div style={{ backgroundColor: '#0A0A0A', borderRadius: '32px', padding: '40px', border: '1px solid #111', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '600px' }}>
-                        <img src={product.image} alt={product.name} style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
+                    <div style={{ backgroundColor: '#0A0A0A', borderRadius: '32px', padding: '20px', border: '1px solid #111', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '300px', height: 'fit-content' }}>
+                        <img src={product.image} alt={product.name} style={{ maxWidth: '100%', maxHeight: '500px', objectFit: 'contain' }} />
                     </div>
                 </div>
 
                 {/* Right: Info */}
                 <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                     <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
-                        <span style={{ backgroundColor: 'rgba(255,87,34,0.1)', color: '#FF5722', padding: '6px 15px', borderRadius: '30px', fontSize: '0.75rem', fontWeight: 'bold', letterSpacing: '1px' }}>{product.category}</span>
-                        {product.badge && <span style={{ backgroundColor: '#FF5722', color: 'white', padding: '6px 15px', borderRadius: '30px', fontSize: '0.75rem', fontWeight: 'bold' }}>{product.badge}</span>}
+                        <span style={{ backgroundColor: 'rgba(255,87,34,0.1)', color: '#FF5722', padding: '6px 15px', borderRadius: '30px', fontSize: '0.7rem', fontWeight: 'bold', letterSpacing: '1px' }}>{product.category}</span>
+                        {product.badge && <span style={{ backgroundColor: '#FF5722', color: 'white', padding: '6px 15px', borderRadius: '30px', fontSize: '0.7rem', fontWeight: 'bold' }}>{product.badge}</span>}
                     </div>
 
-                    <h1 style={{ fontSize: '3.5rem', fontWeight: '900', marginBottom: '1rem', lineHeight: '1.1' }}>{product.name}</h1>
+                    <h1 style={{ fontSize: 'clamp(2rem, 6vw, 3.5rem)', fontWeight: '900', marginBottom: '1rem', lineHeight: '1.1' }}>{product.name}</h1>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
-                        <div style={{ color: '#FFD700', fontSize: '1.2rem' }}>{"★".repeat(product.rating)}{"☆".repeat(5 - product.rating)}</div>
-                        <span style={{ color: '#666', fontSize: '0.9rem' }}>(Review Verified)</span>
+                        <div style={{ color: '#FFD700', fontSize: '1.1rem' }}>{"★".repeat(product.rating)}{"☆".repeat(5 - product.rating)}</div>
+                        <span style={{ color: '#666', fontSize: '0.8rem' }}>(Review Verified)</span>
                     </div>
 
-                    <div style={{ marginBottom: '3rem' }}>
-                        <span style={{ fontSize: '3rem', fontWeight: '900', color: '#FF5722' }}>₹{product.price}</span>
-                        <p style={{ color: '#666', marginTop: '10px' }}>Tax included. Shipping calculated at checkout.</p>
+                    <div style={{ marginBottom: '2.5rem' }}>
+                        <span style={{ fontSize: 'clamp(2rem, 5vw, 3rem)', fontWeight: '900', color: '#FF5722' }}>₹{product.price}</span>
+                        <p style={{ color: '#666', marginTop: '5px', fontSize: '0.9rem' }}>Tax included. Shipping calculated at checkout.</p>
                     </div>
 
                     {/* Size Selector */}

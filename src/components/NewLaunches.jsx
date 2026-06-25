@@ -36,15 +36,15 @@ const NewLaunches = () => {
     if (loading || products.length === 0) return null;
 
     return (
-        <section style={{ padding: '8rem 10%', backgroundColor: '#050505' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '5rem' }}>
+        <section className="responsive-section" style={{ backgroundColor: '#050505' }}>
+            <div className="flex-header">
                 <div>
                     <h4 style={{ color: '#FF5722', letterSpacing: '4px', marginBottom: '1rem' }}>FRESH FROM THE TRACK</h4>
-                    <h2 style={{ fontSize: '3.5rem', color: 'white', fontWeight: '900' }}>NEW LAUNCHES</h2>
+                    <h2 style={{ color: 'white', fontWeight: '900' }}>NEW LAUNCHES</h2>
                 </div>
                 <Link to="/list/category/All" style={{ color: '#FF5722', textDecoration: 'none', fontWeight: 'bold', fontSize: '0.9rem', border: '1px solid #FF5722', padding: '10px 25px', borderRadius: '30px' }}>VIEW ALL PRODUCTS</Link>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '3rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '3rem' }}>
                 {products.map(product => (
                     <ProductCard key={product.id} product={product} />
                 ))}

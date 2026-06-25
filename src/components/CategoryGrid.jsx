@@ -9,15 +9,15 @@ const CategoryGrid = () => {
     if (loading || categories.length === 0) return null;
 
     return (
-        <section id="riding-gears" style={{ padding: '8rem 10%', backgroundColor: '#0A0A0A' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '5rem' }}>
+        <section id="riding-gears" className="responsive-section" style={{ backgroundColor: '#0A0A0A' }}>
+            <div className="flex-header">
                 <div>
                     <h4 style={{ color: '#FF5722', letterSpacing: '4px', marginBottom: '1rem' }}>SHOP BY CATEGORY</h4>
-                    <h2 style={{ fontSize: '3rem', color: 'white', fontWeight: '900' }}>RIDING GEARS</h2>
+                    <h2 style={{ color: 'white', fontWeight: '900' }}>RIDING GEARS</h2>
                 </div>
                 <Link to="/list/category/All" style={{ color: '#FF5722', textDecoration: 'none', fontWeight: 'bold', fontSize: '0.9rem', border: '1px solid #FF5722', padding: '10px 25px', borderRadius: '30px' }}>VIEW ALL GEARS</Link>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem' }}>
                 {categories.slice(0, 6).map((category) => (
                     <Link
                         to={`/list/category/${category.name}`}

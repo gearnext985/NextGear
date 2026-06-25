@@ -9,12 +9,12 @@ const BikeGrid = () => {
     if (loading || bikes.length === 0) return null;
 
     return (
-        <section style={{ padding: '8rem 10%', backgroundColor: '#0A0A0A' }}>
+        <section className="responsive-section" style={{ backgroundColor: '#0A0A0A' }}>
             <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
                 <h4 style={{ color: '#FF5722', letterSpacing: '4px', marginBottom: '1rem' }}>FEATURED BIKES</h4>
-                <h2 style={{ fontSize: '3rem', color: 'white', fontWeight: '900' }}>DOMINATE THE ROAD</h2>
+                <h2 style={{ color: 'white', fontWeight: '900' }}>DOMINATE THE ROAD</h2>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '2.5rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2.5rem' }}>
                 {bikes.slice(0, 5).map(bike => (
                     <Link
                         to={`/list/bike/${bike.name}`}

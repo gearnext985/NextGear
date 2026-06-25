@@ -98,15 +98,15 @@ const Cart = () => {
     };
 
     return (
-        <div style={containerStyle}>
+        <div className="Cart responsive-section" style={{ backgroundColor: '#050505', minHeight: '100vh', paddingTop: '120px', paddingBottom: '60px', color: 'white', fontFamily: 'Outfit, sans-serif' }}>
             <header style={headerStyle}>
                 <Link to="/" style={backLinkStyle}>← Continue Shopping</Link>
-                <h1 style={titleStyle}>Your Riding Bag</h1>
+                <h1 style={{ ...titleStyle, fontSize: 'clamp(2rem, 5vw, 3rem)' }}>Your Riding Bag</h1>
                 <p style={subtitleStyle}>{cart.length} Items Selected</p>
             </header>
 
             {cart.length > 0 ? (
-                <div style={contentStyle}>
+                <div className="grid-responsive" style={{ alignItems: 'start' }}>
                     <div style={itemsContainerStyle}>
                         {cart.map((item) => (
                             <div key={item.id} style={itemCardStyle}>
@@ -214,23 +214,23 @@ const subtitleStyle = { color: '#FF5722', fontWeight: 'bold' };
 
 const contentStyle = { display: 'grid', gridTemplateColumns: '1fr 350px', gap: '40px', alignItems: 'start' };
 const itemsContainerStyle = { display: 'flex', flexDirection: 'column', gap: '20px' };
-const itemCardStyle = { display: 'flex', backgroundColor: '#0A0A0A', borderRadius: '24px', padding: '20px', gap: '25px', border: '1px solid #111' };
-const itemImageContainer = { width: '120px', height: '120px', backgroundColor: '#111', borderRadius: '15px', overflow: 'hidden' };
+const itemCardStyle = { display: 'flex', flexWrap: 'wrap', backgroundColor: '#0A0A0A', borderRadius: '24px', padding: '15px', gap: '15px', border: '1px solid #111' };
+const itemImageContainer = { width: '100px', height: '100px', backgroundColor: '#111', borderRadius: '15px', overflow: 'hidden' };
 const itemImageStyle = { width: '100%', height: '100%', objectFit: 'cover' };
-const itemDetailsStyle = { flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' };
-const itemNameStyle = { fontSize: '1.2rem', fontWeight: 'bold', marginBottom: '5px' };
-const itemCategoryStyle = { color: '#666', fontSize: '0.9rem', marginBottom: '15px' };
-const itemActionsStyle = { display: 'flex', justifyContent: 'space-between', alignItems: 'center' };
-const itemPriceStyle = { fontSize: '1.1rem', fontWeight: 'bold', color: '#FF5722' };
+const itemDetailsStyle = { flex: '1 1 200px', display: 'flex', flexDirection: 'column', justifyContent: 'center' };
+const itemNameStyle = { fontSize: '1.1rem', fontWeight: 'bold', marginBottom: '5px' };
+const itemCategoryStyle = { color: '#666', fontSize: '0.8rem', marginBottom: '10px' };
+const itemActionsStyle = { display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' };
+const itemPriceStyle = { fontSize: '1rem', fontWeight: 'bold', color: '#FF5722' };
 const removeBtnStyle = { background: 'none', border: 'none', color: '#666', cursor: 'pointer', fontSize: '0.8rem', textDecoration: 'underline' };
 const clearBtnStyle = { alignSelf: 'flex-start', background: 'none', border: 'none', color: '#666', cursor: 'pointer', marginTop: '10px' };
 
-const formSectionStyle = { marginTop: '40px', backgroundColor: '#0A0A0A', padding: '30px', borderRadius: '24px', border: '1px solid #111' };
-const formStyle = { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' };
+const formSectionStyle = { marginTop: '30px', backgroundColor: '#0A0A0A', padding: '20px', borderRadius: '24px', border: '1px solid #111' };
+const formStyle = { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '15px' };
 const inputStyle = { width: '100%', padding: '15px', borderRadius: '12px', background: '#111', border: '1px solid #222', color: 'white', fontSize: '0.9rem' };
 const labelStyle = { display: 'block', color: '#666', fontSize: '0.8rem', marginBottom: '10px' };
 
-const summaryCardStyle = { backgroundColor: '#0A0A0A', borderRadius: '30px', padding: '40px', border: '1px solid #111', position: 'sticky', top: '120px' };
+const summaryCardStyle = { backgroundColor: '#0A0A0A', borderRadius: '30px', padding: '30px', border: '1px solid #111' };
 const summaryTitleStyle = { fontSize: '1.6rem', fontWeight: 'bold', marginBottom: '30px' };
 const summaryRowStyle = { display: 'flex', justifyContent: 'space-between', marginBottom: '20px', fontSize: '1rem', color: '#AAA' };
 const dividerStyle = { border: 'none', borderTop: '1px solid #222', margin: '20px 0' };

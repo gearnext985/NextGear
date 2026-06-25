@@ -34,12 +34,12 @@ const ProductList = () => {
     }, [type, name, allProducts, isInitialized])
 
     return (
-        <div style={containerStyle}>
+        <div className="ProductList responsive-section" style={{ backgroundColor: '#050505', minHeight: '100vh', padding: '120px 5% 60px 5%', color: 'white', fontFamily: 'Outfit, sans-serif' }}>
             {/* Header */}
             <header style={headerStyle}>
                 <Link to="/" style={backLinkStyle}>← Back to Home</Link>
-                <h1 style={titleStyle}>
-                    {type === 'accessories' ? 'Bike Accessories & Parts' : (name === 'All' ? 'All Riding Gear' : (type === 'category' ? `Exploration: ${name}` : `Gear for ${name}`))}
+                <h1 style={{ ...titleStyle, fontSize: 'clamp(2rem, 5vw, 3rem)' }}>
+                    {type === 'accessories' ? 'Bike Accessories' : (name === 'All' ? 'All Riding Gear' : (type === 'category' ? `Exploration: ${name}` : `Gear for ${name}`))}
                 </h1>
                 <p style={subtitleStyle}>{products.length} Products Found</p>
             </header>
@@ -92,7 +92,7 @@ const titleStyle = { fontSize: '2.5rem', fontWeight: '900', marginBottom: '10px'
 const subtitleStyle = { color: '#FF5722', fontWeight: 'bold', letterSpacing: '1px' };
 const statusStyle = { textAlign: 'center', padding: '100px', color: '#666' };
 
-const productGridStyle = { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '30px' };
+const productGridStyle = { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '20px' };
 const cardStyle = { backgroundColor: '#0A0A0A', borderRadius: '24px', overflow: 'hidden', border: '1px solid #111', position: 'relative', transition: 'transform 0.3s ease' };
 const imageContainerStyle = { padding: '20px', backgroundColor: '#111', height: '250px', display: 'flex', alignItems: 'center', justifyContent: 'center' };
 const productImageStyle = { maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' };

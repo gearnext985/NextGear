@@ -31,6 +31,7 @@ const HeroCarousel = () => {
         }}>
             <div
                 key={current}
+                className="responsive-section"
                 style={{
                     width: '100%',
                     height: '100%',
@@ -39,13 +40,12 @@ const HeroCarousel = () => {
                     backgroundPosition: 'center',
                     display: 'flex',
                     alignItems: 'center',
-                    padding: '0 10%',
                     transition: 'opacity 0.8s ease'
                 }}
             >
                 <div className="hero-content" style={{ maxWidth: '600px' }}>
                     <h4 style={{ color: slide.color || '#FF5722', marginBottom: '1rem', fontSize: '1.2rem' }}>{slide.title}</h4>
-                    <h1 style={{ fontSize: '4rem', marginBottom: '1.5rem', lineHeight: '1' }}>{slide.subtitle}</h1>
+                    <h1 style={{ marginBottom: '1.5rem', lineHeight: '1' }}>{slide.subtitle}</h1>
                     <p style={{ color: '#A0A0A0', fontSize: '1.1rem', marginBottom: '2.5rem' }}>{slide.description}</p>
                     <button style={{ backgroundColor: slide.color || '#FF5722', color: 'white', padding: '10px 20px', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}>Shop Now</button>
                 </div>

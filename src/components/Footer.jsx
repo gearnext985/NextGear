@@ -1,4 +1,5 @@
 import React from 'react'
+import logo from '../assets/NextGear.jpg'
 
 const Footer = () => {
     return (
@@ -11,7 +12,7 @@ const Footer = () => {
             }}>
                 <div>
                     <div className="logo" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.5rem' }}>
-                        <img src="/src/assets/NextGear.jpg" alt="NextGear" style={{
+                        <img src={logo} alt="NextGear" style={{
                             width: '38px',
                             height: '38px',
                             borderRadius: '8px',

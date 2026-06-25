@@ -1,4 +1,5 @@
 import { useSelector } from 'react-redux'
+import { Link } from 'react-router-dom'
 
 const AllBikes = () => {
     const bikes = useSelector(state => state.data.bikes) || []
@@ -10,10 +11,10 @@ const AllBikes = () => {
     }
 
     return (
-        <div style={containerStyle}>
+        <div className="AllBikes responsive-section" style={{ backgroundColor: '#050505', minHeight: '100vh', padding: '120px 5% 60px 5%', color: 'white', fontFamily: 'Outfit, sans-serif' }}>
             <header style={headerStyle}>
                 <Link to="/" style={backLinkStyle}>← Back to Home</Link>
-                <h1 style={titleStyle}>The Full Fleet</h1>
+                <h1 style={{ ...titleStyle, fontSize: 'clamp(2rem, 5vw, 3rem)' }}>The Full Fleet</h1>
                 <p style={subtitleStyle}>{bikes.length} Models Available</p>
             </header>
 
@@ -40,13 +41,13 @@ const AllBikes = () => {
 }
 
 const containerStyle = { backgroundColor: '#050505', minHeight: '100vh', padding: '120px 10% 60px 10%', color: 'white', fontFamily: 'Outfit, sans-serif' };
-const headerStyle = { marginBottom: '60px', textAlign: 'center' };
-const backLinkStyle = { color: '#666', textDecoration: 'none', fontSize: '0.9rem', marginBottom: '20px', display: 'inline-block' };
+const headerStyle = { marginBottom: '40px', textAlign: 'center' };
+const backLinkStyle = { color: '#666', textDecoration: 'none', fontSize: '0.8rem', marginBottom: '15px', display: 'inline-block' };
 const titleStyle = { fontSize: '3rem', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '2px', marginBottom: '10px' };
 const subtitleStyle = { color: '#FF5722', fontWeight: 'bold' };
 const statusStyle = { textAlign: 'center', padding: '100px', color: '#666' };
 
-const bikeGridStyle = { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '2.5rem' };
+const bikeGridStyle = { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' };
 const cardStyle = { borderRadius: '30px', overflow: 'hidden', backgroundColor: '#0A0A0A', border: '1px solid #111', transition: '0.4s', textDecoration: 'none', display: 'block' };
 const imageContainerStyle = { height: '300px', overflow: 'hidden' };
 const imageStyle = { width: '100%', height: '100%', objectFit: 'cover' };
