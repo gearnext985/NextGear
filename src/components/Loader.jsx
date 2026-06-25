@@ -79,14 +79,18 @@ const dotStyle = {
 };
 
 const textStyle = {
-    color: '#FF5722',
+    color: 'white',
     fontSize: '1.5rem',
     fontWeight: '900',
     textTransform: 'uppercase',
     letterSpacing: '4px',
     margin: 0,
     marginTop: '10px',
-    textAlign: 'center'
+    background: 'linear-gradient(to right, #fff, #FF5722, #fff)',
+    backgroundSize: '200% auto',
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent',
+    animation: 'shine 3s linear infinite'
 };
 
 const progressContainerStyle = {

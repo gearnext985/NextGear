@@ -20,25 +20,34 @@ function App() {
     dispatch(fetchGlobalData());
   }, [dispatch]);
 
+  if (error) {
+    return (
+      <div style={{ backgroundColor: '#050505', color: 'white', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ textAlign: 'center' }}>
+          <h2 style={{ color: '#FF5722' }}>Oops! Something went wrong</h2>
+          <p style={{ marginTop: '10px', color: '#666' }}>{error}</p>
+          <button onClick={() => window.location.reload()} style={{ marginTop: '20px', padding: '10px 20px', backgroundColor: '#FF5722', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>Retry</button>
+        </div>
+      </div>
+    );
+  }
+
+  if (loading || !isInitialized) {
+    return <Loader />;
+  }
+
   return (
     <Router>
       <CartProvider>
-        {isInitialized ? (
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/admin" element={<Admin />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/list/:type/:name" element={<ProductList />} />
-            <Route path="/product/:id" element={<ProductDetails />} />
-            <Route path="/cart" element={<Cart />} />
-            <Route path="/all-bikes" element={<AllBikes />} />
-          </Routes>
-        ) : (
-          <div style={{ padding: '20px', color: 'white', backgroundColor: '#050505', height: '100vh' }}>
-            Initializing Next Gear... {loading ? "(Fetching Data)" : ""}
-            {error && <div style={{ color: 'red' }}>Error: {error}</div>}
-          </div>
-        )}
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/admin" element={<Admin />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/list/:type/:name" element={<ProductList />} />
+          <Route path="/product/:id" element={<ProductDetails />} />
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/all-bikes" element={<AllBikes />} />
+        </Routes>
       </CartProvider>
     </Router>
   )
