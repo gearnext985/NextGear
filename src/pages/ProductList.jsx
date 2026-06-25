@@ -1,0 +1,107 @@
+import React, { useState, useEffect } from 'react'
+import { useParams, Link } from 'react-router-dom'
+import { useSelector } from 'react-redux'
+import { useCart } from '../context/CartContext'
+
+const ProductList = () => {
+    const { type, name } = useParams()
+    const { addToCart } = useCart()
+
+    const allProducts = useSelector(state => state.data.products);
+    const globalLoading = useSelector(state => state.data.loading);
+    const isInitialized = useSelector(state => state.data.isInitialized);
+
+    const [products, setProducts] = useState([])
+    const [loading, setLoading] = useState(true)
+
+    useEffect(() => {
+        if (!isInitialized) return;
+
+        let filtered = allProducts ? [...allProducts] : [];
+
+        if (name === 'All' && type !== 'accessories') {
+            filtered = filtered.filter(p => p.category !== "Accessories");
+        } else if (type === 'category') {
+            filtered = filtered.filter(p => p.category === name && p.category !== "Accessories");
+        } else if (type === 'bike') {
+            filtered = filtered.filter(p => p.targetBike === name);
+        } else if (type === 'accessories') {
+            filtered = filtered.filter(p => p.category === "Accessories");
+        }
+
+        setProducts(filtered);
+        setLoading(false);
+    }, [type, name, allProducts, isInitialized])
+
+    return (
+        <div style={containerStyle}>
+            {/* Header */}
+            <header style={headerStyle}>
+                <Link to="/" style={backLinkStyle}>← Back to Home</Link>
+                <h1 style={titleStyle}>
+                    {type === 'accessories' ? 'Bike Accessories & Parts' : (name === 'All' ? 'All Riding Gear' : (type === 'category' ? `Exploration: ${name}` : `Gear for ${name}`))}
+                </h1>
+                <p style={subtitleStyle}>{products.length} Products Found</p>
+            </header>
+
+            {/* Grid */}
+            {loading ? (
+                <div style={statusStyle}>Loading your gear...</div>
+            ) : products.length > 0 ? (
+                <div style={productGridStyle}>
+                    {products.map((product) => (
+                        <div key={product.id} style={cardStyle}>
+                            {product.badge && <span style={badgeStyle}>{product.badge}</span>}
+                            <Link to={`/product/${product.id}`} style={{ textDecoration: 'none' }}>
+                                <div style={imageContainerStyle}>
+                                    <img src={product.image} alt={product.name} style={productImageStyle} />
+                                </div>
+                            </Link>
+                            <div style={infoStyle}>
+                                <div style={ratingStyle}>
+                                    {"★".repeat(product.rating)}{"☆".repeat(5 - product.rating)}
+                                </div>
+                                <Link to={`/product/${product.id}`} style={{ textDecoration: 'none' }}>
+                                    <h3 style={productNameStyle}>{product.name}</h3>
+                                </Link>
+                                <div style={priceContainerStyle}>
+                                    <span style={priceStyle}>₹{product.price}</span>
+                                    <button
+                                        onClick={() => addToCart(product)}
+                                        style={cartBtnStyle}
+                                    >Add to Cart</button>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            ) : (
+                <div style={statusStyle}>
+                    <p>No products found for this {type}.</p>
+                    <Link to="/" style={{ color: '#FF5722', textDecoration: 'none', fontWeight: 'bold' }}>Explore Other Gear</Link>
+                </div>
+            )}
+        </div>
+    )
+}
+
+const containerStyle = { backgroundColor: '#050505', minHeight: '100vh', padding: '120px 5% 60px 5%', color: 'white', fontFamily: 'Outfit, sans-serif' };
+const headerStyle = { marginBottom: '60px', textAlign: 'center' };
+const backLinkStyle = { color: '#666', textDecoration: 'none', fontSize: '0.9rem', marginBottom: '20px', display: 'inline-block' };
+const titleStyle = { fontSize: '2.5rem', fontWeight: '900', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '2px' };
+const subtitleStyle = { color: '#FF5722', fontWeight: 'bold', letterSpacing: '1px' };
+const statusStyle = { textAlign: 'center', padding: '100px', color: '#666' };
+
+const productGridStyle = { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '30px' };
+const cardStyle = { backgroundColor: '#0A0A0A', borderRadius: '24px', overflow: 'hidden', border: '1px solid #111', position: 'relative', transition: 'transform 0.3s ease' };
+const imageContainerStyle = { padding: '20px', backgroundColor: '#111', height: '250px', display: 'flex', alignItems: 'center', justifyContent: 'center' };
+const productImageStyle = { maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' };
+const infoStyle = { padding: '25px' };
+const ratingStyle = { color: '#FFD700', fontSize: '0.8rem', marginBottom: '10px' };
+const productNameStyle = { fontSize: '1.2rem', fontWeight: 'bold', marginBottom: '15px' };
+const priceContainerStyle = { display: 'flex', justifyContent: 'space-between', alignItems: 'center' };
+const priceStyle = { fontSize: '1.5rem', fontWeight: '900', color: '#FF5722' };
+const cartBtnStyle = { backgroundColor: 'white', color: 'black', border: 'none', padding: '10px 20px', borderRadius: '12px', fontWeight: 'bold', cursor: 'pointer' };
+const badgeStyle = { position: 'absolute', top: '15px', right: '15px', backgroundColor: '#FF5722', color: 'white', padding: '5px 12px', borderRadius: '30px', fontSize: '0.7rem', fontWeight: '900', zIndex: 2 };
+
+export default ProductList
