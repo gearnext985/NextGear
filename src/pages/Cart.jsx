@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useCart } from '../context/CartContext'
 import { db } from '../firebase'
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore'
+import GooglePayButton from '@google-pay/button-react'
 
 const Cart = () => {
     const { cart, removeFromCart, clearCart } = useCart();
@@ -12,8 +13,14 @@ const Cart = () => {
     // Form State
     const [customerInfo, setCustomerInfo] = useState({
         fullName: '',
+        email: '',
         phone: '',
-        address: ''
+        houseApartment: '',
+        streetRoad: '',
+        areaLocality: '',
+        cityState: '',
+        pinCode: '',
+        country: ''
     });
     const [paymentScreenshot, setPaymentScreenshot] = useState('');
 
@@ -66,27 +73,80 @@ const Cart = () => {
         });
     };
 
-    const handlePlaceOrder = async (e) => {
-        e.preventDefault();
+    const handlePlaceOrder = async (e, isGPay = false) => {
+        if (e && e.preventDefault) e.preventDefault();
         if (cart.length === 0) return;
-        if (!paymentScreenshot) {
+
+        if (!isGPay && !paymentScreenshot) {
             alert("Please upload your payment screenshot to continue.");
             return;
         }
 
         setIsProcessing(true);
         try {
+            const addressString = `${customerInfo.houseApartment}, ${customerInfo.streetRoad}, ${customerInfo.areaLocality}, ${customerInfo.cityState} - ${customerInfo.pinCode}, ${customerInfo.country}`;
             const orderData = {
-                customer: customerInfo,
+                customer: {
+                    fullName: customerInfo.fullName,
+                    email: customerInfo.email,
+                    phone: customerInfo.phone,
+                    houseApartment: customerInfo.houseApartment,
+                    streetRoad: customerInfo.streetRoad,
+                    areaLocality: customerInfo.areaLocality,
+                    cityState: customerInfo.cityState,
+                    pinCode: customerInfo.pinCode,
+                    country: customerInfo.country,
+                    address: addressString
+                },
                 items: cart,
                 total: total,
-                paymentProof: paymentScreenshot,
+                paymentProof: isGPay ? 'GPay Verified' : paymentScreenshot,
+                paymentMethod: isGPay ? 'Google Pay' : 'Manual Transfer',
                 status: 'Pending',
                 createdAt: serverTimestamp()
             };
 
-            await addDoc(collection(db, "orders"), orderData);
-            alert("Order placed successfully! Our team will verify and contact you soon.");
+            const docRef = await addDoc(collection(db, "orders"), orderData);
+
+            // Send Email Receipts via Netlify Serverless Function
+            try {
+                const emailPayload = {
+                    customerInfo: {
+                        fullName: customerInfo.fullName,
+                        email: customerInfo.email,
+                        phone: customerInfo.phone
+                    },
+                    items: cart.map(item => ({
+                        name: item.name,
+                        price: item.price,
+                        quantity: item.quantity || 1,
+                        selectedSize: item.selectedSize || ''
+                    })),
+                    total: total,
+                    orderId: docRef.id,
+                    address: addressString,
+                    paymentMethod: isGPay ? 'Google Pay' : 'Manual Transfer'
+                };
+
+                const response = await fetch('/api/send-email', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(emailPayload)
+                });
+
+                if (response.ok) {
+                    console.log('Order receipts queued and sent successfully.');
+                } else {
+                    const errorText = await response.text();
+                    console.warn('Backend returned email error:', errorText);
+                }
+            } catch (emailErr) {
+                console.error('Failed to dispatch receipt request:', emailErr);
+            }
+
+            alert(isGPay ? "GPay Verified! Order placed successfully." : "Order placed successfully! Our team will verify and contact you soon.");
             clearCart();
             navigate('/');
         } catch (err) {
@@ -138,6 +198,14 @@ const Cart = () => {
                                     style={inputStyle}
                                 />
                                 <input
+                                    type="email"
+                                    placeholder="Email Address"
+                                    required
+                                    value={customerInfo.email}
+                                    onChange={e => setCustomerInfo({ ...customerInfo, email: e.target.value })}
+                                    style={inputStyle}
+                                />
+                                <input
                                     type="tel"
                                     placeholder="Phone Number"
                                     required
@@ -145,12 +213,53 @@ const Cart = () => {
                                     onChange={e => setCustomerInfo({ ...customerInfo, phone: e.target.value })}
                                     style={inputStyle}
                                 />
-                                <textarea
-                                    placeholder="Full Delivery Address"
+                                <input
+                                    type="text"
+                                    placeholder="House/Flat/Apartment No., Building Name"
                                     required
-                                    value={customerInfo.address}
-                                    onChange={e => setCustomerInfo({ ...customerInfo, address: e.target.value })}
-                                    style={{ ...inputStyle, gridColumn: '1 / -1', height: '100px', resize: 'none' }}
+                                    value={customerInfo.houseApartment}
+                                    onChange={e => setCustomerInfo({ ...customerInfo, houseApartment: e.target.value })}
+                                    style={{ ...inputStyle, gridColumn: '1 / -1' }}
+                                />
+                                <input
+                                    type="text"
+                                    placeholder="Street/Road Name"
+                                    required
+                                    value={customerInfo.streetRoad}
+                                    onChange={e => setCustomerInfo({ ...customerInfo, streetRoad: e.target.value })}
+                                    style={{ ...inputStyle, gridColumn: '1 / -1' }}
+                                />
+                                <input
+                                    type="text"
+                                    placeholder="Area/Locality"
+                                    required
+                                    value={customerInfo.areaLocality}
+                                    onChange={e => setCustomerInfo({ ...customerInfo, areaLocality: e.target.value })}
+                                    style={inputStyle}
+                                />
+                                <input
+                                    type="text"
+                                    placeholder="City, State"
+                                    required
+                                    value={customerInfo.cityState}
+                                    onChange={e => setCustomerInfo({ ...customerInfo, cityState: e.target.value })}
+                                    style={inputStyle}
+                                />
+                                <input
+                                    type="text"
+                                    placeholder="PIN Code"
+                                    required
+                                    value={customerInfo.pinCode}
+                                    onChange={e => setCustomerInfo({ ...customerInfo, pinCode: e.target.value })}
+                                    style={inputStyle}
+                                />
+                                <input
+                                    type="text"
+                                    placeholder="Country"
+                                    required
+                                    value={customerInfo.country}
+                                    onChange={e => setCustomerInfo({ ...customerInfo, country: e.target.value })}
+                                    style={inputStyle}
                                 />
 
                                 <div style={{ gridColumn: '1 / -1', marginTop: '1rem' }}>
@@ -191,6 +300,57 @@ const Cart = () => {
                         >
                             {isProcessing ? 'Processing Order...' : 'Place Order'}
                         </button>
+
+                        <div style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                <hr style={{ flex: 1, border: 'none', borderTop: '1px solid #222' }} />
+                                <span style={{ color: '#444', fontSize: '0.8rem', fontWeight: 'bold' }}>OR EXPRESS CHECKOUT</span>
+                                <hr style={{ flex: 1, border: 'none', borderTop: '1px solid #222' }} />
+                            </div>
+
+                            {/* <GooglePayButton
+                                environment="TEST"
+                                paymentRequest={{
+                                    apiVersion: 2,
+                                    apiVersionMinor: 0,
+                                    allowedPaymentMethods: [
+                                        {
+                                            type: 'CARD',
+                                            parameters: {
+                                                allowedAuthMethods: ['PAN_ONLY', 'CRYPTOGRAM_3DS'],
+                                                allowedCardNetworks: ['MASTERCARD', 'VISA'],
+                                            },
+                                            tokenizationSpecification: {
+                                                type: 'PAYMENT_GATEWAY',
+                                                parameters: {
+                                                    gateway: 'example',
+                                                    gatewayMerchantId: 'exampleGatewayMerchantId',
+                                                },
+                                            },
+                                        },
+                                    ],
+                                    merchantInfo: {
+                                        merchantId: '12345678901234567890',
+                                        merchantName: 'Next Gear Automotive',
+                                    },
+                                    transactionInfo: {
+                                        totalPriceStatus: 'FINAL',
+                                        totalPriceLabel: 'Total',
+                                        totalPrice: total.toFixed(2),
+                                        currencyCode: 'INR',
+                                        countryCode: 'IN',
+                                    },
+                                }}
+                                onLoadPaymentData={paymentRequest => {
+                                    console.log('load payment data', paymentRequest);
+                                    // Auto-submit order with mock payment info
+                                    handlePlaceOrder(null, true);
+                                }}
+                                style={{ width: '100%', height: '50' }}
+                                buttonColor="white"
+                                buttonType="checkout"
+                            /> */}
+                        </div>
                         <p style={secureInfoStyle}>📦 Our team will call you for confirmation</p>
                     </div>
                 </div>
