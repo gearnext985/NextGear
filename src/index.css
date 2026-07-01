@@ -155,6 +155,11 @@ body {
   position: relative;
 }
 
+html {
+  font-size: 85%;
+  /* Globally scale down all rem-based typography by 15% */
+}
+
 @media (max-width: 768px) {
   :root {
     --section-padding: var(--mobile-padding);

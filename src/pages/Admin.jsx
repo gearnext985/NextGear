@@ -18,12 +18,12 @@ const Admin = () => {
     const [user, setUser] = useState(null)
 
     // Form States
-    const [newProduct, setNewProduct] = useState({ name: '', price: '', image: '', badge: '', rating: 5, category: 'Helmets', targetBike: '', description: '', sizeChart: '', sizes: '' })
-    const [newCategory, setNewCategory] = useState({ name: '', slug: '', image: '', count: '' })
+    const [newProduct, setNewProduct] = useState({ name: '', price: '', image: '', stockCount: '', rating: 5, category: 'Helmets', targetBike: '', description: '', sizeChart: '', sizes: '', discount: '' })
+    const [newCategory, setNewCategory] = useState({ name: '', slug: '', image: '' })
     const [newOffer, setNewOffer] = useState({ title: '', image: '', link: '' })
     const [newBrand, setNewBrand] = useState({ name: '', logo: '' })
     const [newBike, setNewBike] = useState({ name: '', image: '', description: '' })
-    const [newSlide, setNewSlide] = useState({ title: '', subtitle: '', description: '', image: '', color: '#FF5722' })
+    const [newSlide, setNewSlide] = useState({ title: '', subtitle: '', description: '', image: '', color: '#FF5722', targetProductId: '' })
 
     // UI States
     const [activeTab, setActiveTab] = useState('products')
@@ -155,8 +155,11 @@ const Admin = () => {
             sizes: '',
             sizeChart: '',
             targetBike: '',
-            badge: '',
-            ...item
+            stockCount: '',
+            discount: '',
+            targetProductId: '',
+            ...item,
+            ...(activeTab === 'products' ? { price: item.originalPrice || item.price } : {})
         })
     }
 
@@ -165,7 +168,23 @@ const Admin = () => {
         if (!editingItem) return
         setIsProcessing(true)
         try {
-            const { id, ...rest } = editData
+            let { id, createdAt, originalPrice, ...rest } = editData
+
+            if (activeTab === 'products') {
+                let parsedStock = parseInt(rest.stockCount, 10);
+                rest.stockCount = isNaN(parsedStock) ? 0 : parsedStock;
+
+                let basePrice = parseFloat(rest.price);
+                let discount = parseFloat(rest.discount) || 0;
+                if (discount > 0) {
+                    rest.originalPrice = basePrice;
+                    rest.price = basePrice - (basePrice * discount / 100);
+                } else {
+                    rest.originalPrice = null;
+                    rest.price = basePrice;
+                }
+            }
+
             await updateDoc(doc(db, activeTab, editingItem.id), rest)
             setEditingItem(null)
             setEditData({})
@@ -191,57 +210,77 @@ const Admin = () => {
         switch (activeTab) {
             case 'products':
                 return (
-                    <form onSubmit={(e) => handleAddItem(e, "products", {
-                        ...newProduct,
-                        price: parseFloat(newProduct.price),
-                        targetBike: newProduct.category === 'Accessories' ? newProduct.targetBike : '',
-                        sizeChart: newProduct.category === 'Accessories' ? '' : newProduct.sizeChart,
-                        sizes: newProduct.category === 'Accessories' ? '' : newProduct.sizes
-                    }, () => setNewProduct({ name: '', price: '', image: '', badge: '', rating: 5, category: categories[0]?.name || 'Helmets', targetBike: '', description: '', sizeChart: '', sizes: '' }))}
+                    <form onSubmit={(e) => {
+                        let stockCount = parseInt(newProduct.stockCount, 10) || 0;
+                        let basePrice = parseFloat(newProduct.price);
+                        let discount = parseFloat(newProduct.discount) || 0;
+                        let finalPrice = basePrice;
+                        let originalPrice = null;
+                        if (discount > 0) {
+                            finalPrice = basePrice - (basePrice * discount / 100);
+                            originalPrice = basePrice;
+                        }
+
+                        handleAddItem(e, "products", {
+                            ...newProduct,
+                            price: finalPrice,
+                            originalPrice: originalPrice,
+                            discount: discount,
+                            stockCount: stockCount,
+                            targetBike: newProduct.category === 'Accessories' ? newProduct.targetBike : '',
+                            sizeChart: newProduct.category === 'Accessories' ? '' : newProduct.sizeChart,
+                            sizes: newProduct.category === 'Accessories' ? '' : newProduct.sizes
+                        }, () => setNewProduct({ name: '', price: '', image: '', stockCount: '', rating: 5, category: categories[0]?.name || 'Helmets', targetBike: '', description: '', sizeChart: '', sizes: '', discount: '' }))
+                    }}
                         style={formStyle}>
-                        <input type="text" placeholder="Product Name" value={newProduct.name} onChange={e => setNewProduct({ ...newProduct, name: e.target.value })} required style={inputStyle} />
-                        <input type="number" placeholder="Price" value={newProduct.price} onChange={e => setNewProduct({ ...newProduct, price: e.target.value })} required style={inputStyle} />
+                        <input type="text" placeholder="Product Name *" value={newProduct.name} onChange={e => setNewProduct({ ...newProduct, name: e.target.value })} required style={inputStyle} />
+                        <div style={{ display: 'flex', gap: '10px' }}>
+                            <input type="number" placeholder="Base Price (₹) *" value={newProduct.price} onChange={e => setNewProduct({ ...newProduct, price: e.target.value })} required style={{ ...inputStyle, flex: 1 }} />
+                            <input type="number" placeholder="Discount % (Optional)" value={newProduct.discount} onChange={e => setNewProduct({ ...newProduct, discount: e.target.value })} style={{ ...inputStyle, flex: 1 }} />
+                            <input type="number" placeholder="Total Stock Count *" value={newProduct.stockCount} onChange={e => setNewProduct({ ...newProduct, stockCount: e.target.value })} required style={{ ...inputStyle, flex: 1 }} />
+                        </div>
                         <div style={{ gridColumn: '1 / -1' }}>
-                            <label style={labelStyle}>{newProduct.image ? 'Image Ready ✓' : 'Pick Image from Device'}</label>
+                            <label style={labelStyle}>{newProduct.image ? 'Product Image Ready ✓' : 'Upload Product Image * (Required)'}</label>
                             <input type="file" accept="image/*" onChange={e => handleFileSelect(e.target.files[0], base64 => setNewProduct({ ...newProduct, image: base64 }))} style={inputStyle} />
                         </div>
 
                         <div style={{ gridColumn: '1 / -1' }}>
-                            <label style={labelStyle}>Product Category</label>
-                            <select value={newProduct.category} onChange={e => setNewProduct({ ...newProduct, category: e.target.value })} style={inputStyle}>
+                            <label style={labelStyle}>Product Category *</label>
+                            <select value={newProduct.category} onChange={e => setNewProduct({ ...newProduct, category: e.target.value })} required style={inputStyle}>
                                 {categories.map(c => <option key={c.id} value={c.name}>{c.name}</option>)}
                             </select>
                         </div>
                         {
                             newProduct.category === 'Accessories' && (
                                 <div style={{ gridColumn: '1 / -1' }}>
-                                    <label style={labelStyle}>Link to Bike (Select Motorcycle)</label>
-                                    <select value={newProduct.targetBike} onChange={e => setNewProduct({ ...newProduct, targetBike: e.target.value })} style={inputStyle}>
-                                        <option value="">-- Multiple / Generic --</option>
+                                    <label style={labelStyle}>Link to Bike (Select Motorcycle) *</label>
+                                    <select value={newProduct.targetBike} onChange={e => setNewProduct({ ...newProduct, targetBike: e.target.value })} required style={inputStyle}>
+                                        <option value="">-- Select Bike Compatibility --</option>
+                                        <option value="All Bikes">All Bikes (Universal Accessory)</option>
                                         {bikes.map(b => <option key={b.id} value={b.name}>{b.name}</option>)}
                                     </select>
                                 </div>
                             )
                         }
                         <div style={{ gridColumn: '1 / -1' }}>
-                            <label style={labelStyle}>Product Description (Visible on Details Page)</label>
-                            <textarea rows="3" value={newProduct.description} onChange={e => setNewProduct({ ...newProduct, description: e.target.value })} style={{ ...inputStyle, fontFamily: 'inherit' }} />
+                            <label style={labelStyle}>Product Description (Visible on Details Page) *</label>
+                            <textarea rows="3" value={newProduct.description} onChange={e => setNewProduct({ ...newProduct, description: e.target.value })} required style={{ ...inputStyle, fontFamily: 'inherit' }} />
                         </div>
                         {
                             newProduct.category !== 'Accessories' && (
                                 <>
                                     <div style={{ gridColumn: '1 / -1' }}>
-                                        <label style={labelStyle}>Available Sizes (Comma separated, e.g. S, M, L, XL)</label>
-                                        <input type="text" value={newProduct.sizes} onChange={e => setNewProduct({ ...newProduct, sizes: e.target.value })} placeholder="S, M, L, XL" style={inputStyle} />
+                                        <label style={labelStyle}>Available Sizes (Comma separated, e.g. S, M, L, XL) *</label>
+                                        <input type="text" value={newProduct.sizes} onChange={e => setNewProduct({ ...newProduct, sizes: e.target.value })} placeholder="S, M, L, XL" required style={inputStyle} />
                                     </div>
                                     <div style={{ gridColumn: '1 / -1' }}>
-                                        <label style={labelStyle}>{newProduct.sizeChart ? 'Size Chart Ready ✓' : 'Upload Size Chart Image'}</label>
+                                        <label style={labelStyle}>{newProduct.sizeChart ? 'Size Chart Ready ✓' : 'Upload Size Chart Image * (Required)'}</label>
                                         <input type="file" accept="image/*" onChange={e => handleFileSelect(e.target.files[0], base64 => setNewProduct({ ...newProduct, sizeChart: base64 }))} style={inputStyle} />
                                     </div>
                                 </>
                             )
                         }
-                        <button type="submit" disabled={isProcessing || !newProduct.image} style={btnStyle}>{isProcessing ? 'Processing...' : 'Save Product'}</button>
+                        <button type="submit" disabled={isProcessing || !newProduct.image || (newProduct.category !== 'Accessories' && !newProduct.sizeChart)} style={btnStyle}>{isProcessing ? 'Processing...' : 'Save Product'}</button>
                     </form >
                 )
             case 'categories':
@@ -249,7 +288,7 @@ const Admin = () => {
                     <form onSubmit={(e) => handleAddItem(e, "categories", { ...newCategory, slug: newCategory.name.toLowerCase().replace(/\s+/g, '-') }, () => setNewCategory({ name: '', slug: '', image: '', count: '' }))}
                         style={formStyle}>
                         <input type="text" placeholder="Category Name" value={newCategory.name} onChange={e => setNewCategory({ ...newCategory, name: e.target.value })} required style={inputStyle} />
-                        <input type="text" placeholder="Item Count" value={newCategory.count} onChange={e => setNewCategory({ ...newCategory, count: e.target.value })} style={inputStyle} />
+                        {/* <input type="text" placeholder="Item Count" value={newCategory.count} onChange={e => setNewCategory({ ...newCategory, count: e.target.value })} style={inputStyle} /> */}
                         <div style={{ gridColumn: '1 / -1' }}>
                             <label style={labelStyle}>{newCategory.image ? 'Image Ready ✓' : 'Pick Category Image'}</label>
                             <input type="file" accept="image/*" onChange={e => handleFileSelect(e.target.files[0], base64 => setNewCategory({ ...newCategory, image: base64 }))} style={inputStyle} />
@@ -257,19 +296,19 @@ const Admin = () => {
                         <button type="submit" disabled={isProcessing || !newCategory.image} style={btnStyle}>{isProcessing ? 'Processing...' : 'Save Category'}</button>
                     </form>
                 )
-            case 'offers':
-                return (
-                    <form onSubmit={(e) => handleAddItem(e, "offers", newOffer, () => setNewOffer({ title: '', image: '', link: '' }))}
-                        style={formStyle}>
-                        <input type="text" placeholder="Offer Title" value={newOffer.title} onChange={e => setNewOffer({ ...newOffer, title: e.target.value })} required style={inputStyle} />
-                        <input type="text" placeholder="Link (Optional)" value={newOffer.link} onChange={e => setNewOffer({ ...newOffer, link: e.target.value })} style={inputStyle} />
-                        <div style={{ gridColumn: '1 / -1' }}>
-                            <label style={labelStyle}>{newOffer.image ? 'Image Ready ✓' : 'Pick Banner Image'}</label>
-                            <input type="file" accept="image/*" onChange={e => handleFileSelect(e.target.files[0], base64 => setNewOffer({ ...newOffer, image: base64 }))} style={inputStyle} />
-                        </div>
-                        <button type="submit" disabled={isProcessing || !newOffer.image} style={btnStyle}>{isProcessing ? 'Processing...' : 'Save Offer'}</button>
-                    </form>
-                )
+            // case 'offers':
+            //     return (
+            //         <form onSubmit={(e) => handleAddItem(e, "offers", newOffer, () => setNewOffer({ title: '', image: '', link: '' }))}
+            //             style={formStyle}>
+            //             <input type="text" placeholder="Offer Title" value={newOffer.title} onChange={e => setNewOffer({ ...newOffer, title: e.target.value })} required style={inputStyle} />
+            //             <input type="text" placeholder="Link (Optional)" value={newOffer.link} onChange={e => setNewOffer({ ...newOffer, link: e.target.value })} style={inputStyle} />
+            //             <div style={{ gridColumn: '1 / -1' }}>
+            //                 <label style={labelStyle}>{newOffer.image ? 'Image Ready ✓' : 'Pick Banner Image'}</label>
+            //                 <input type="file" accept="image/*" onChange={e => handleFileSelect(e.target.files[0], base64 => setNewOffer({ ...newOffer, image: base64 }))} style={inputStyle} />
+            //             </div>
+            //             <button type="submit" disabled={isProcessing || !newOffer.image} style={btnStyle}>{isProcessing ? 'Processing...' : 'Save Offer'}</button>
+            //         </form>
+            //     )
             case 'brands':
                 return (
                     <form onSubmit={(e) => handleAddItem(e, "brands", newBrand, () => setNewBrand({ name: '', logo: '' }))}
@@ -297,10 +336,17 @@ const Admin = () => {
                 )
             case 'slides':
                 return (
-                    <form onSubmit={(e) => handleAddItem(e, "slides", newSlide, () => setNewSlide({ title: '', subtitle: '', description: '', image: '', color: '#FF5722' }))}
+                    <form onSubmit={(e) => handleAddItem(e, "slides", newSlide, () => setNewSlide({ title: '', subtitle: '', description: '', image: '', color: '#FF5722', targetProductId: '' }))}
                         style={formStyle}>
                         <input type="text" placeholder="Title (e.g. UP TO 30% OFF)" value={newSlide.title} onChange={e => setNewSlide({ ...newSlide, title: e.target.value })} required style={inputStyle} />
                         <input type="text" placeholder="Subtitle (e.g. ON ALL HELMETS)" value={newSlide.subtitle} onChange={e => setNewSlide({ ...newSlide, subtitle: e.target.value })} required style={inputStyle} />
+                        <div style={{ gridColumn: '1 / -1' }}>
+                            <label style={labelStyle}>Link to Product (Optional)</label>
+                            <select value={newSlide.targetProductId} onChange={e => setNewSlide({ ...newSlide, targetProductId: e.target.value })} style={inputStyle}>
+                                <option value="">-- No Linked Product --</option>
+                                {products.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                            </select>
+                        </div>
                         <div style={{ gridColumn: '1 / -1' }}>
                             <input type="text" placeholder="Description text" value={newSlide.description} onChange={e => setNewSlide({ ...newSlide, description: e.target.value })} style={inputStyle} />
                         </div>
@@ -475,10 +521,10 @@ const Admin = () => {
 
             <main style={{ padding: '2rem 5%' }}>
                 <div style={{ display: 'flex', gap: '1rem', marginBottom: '2.5rem', overflowX: 'auto', paddingBottom: '10px' }}>
-                    {['products', 'categories', 'offers', 'brands', 'bikes', 'slides', 'orders'].map(t => (
+                    {['products', 'categories', 'brands', 'bikes', 'slides', 'orders'].map(t => (
                         <button key={t} onClick={() => { setActiveTab(t); setIsAdding(false); }}
                             style={{ ...tabBtnStyle, color: activeTab === t ? '#FF5722' : '#555', borderBottom: activeTab === t ? '2px solid #FF5722' : 'none' }}>
-                            {t.toUpperCase()}
+                            {t === 'slides' ? 'OFFERS' : t.toUpperCase()}
                         </button>
                     ))}
                 </div>
@@ -508,6 +554,7 @@ const Admin = () => {
                                 if (key === 'sizeChart' && editData.category === 'Accessories') return null;
                                 if (key === 'sizes' && editData.category === 'Accessories') return null;
                                 if (key === 'targetBike' && editData.category !== 'Accessories') return null;
+                                if (key === 'targetProductId' && activeTab !== 'slides') return null;
 
                                 return (
                                     <div key={key} style={{ gridColumn: ['description', 'image', 'logo', 'title', 'subtitle', 'sizes', 'sizeChart'].includes(key) ? '1 / -1' : 'auto' }}>
@@ -524,8 +571,21 @@ const Admin = () => {
                                                 <input type="checkbox" checked={!!editData[key]} onChange={e => setEditData({ ...editData, isAccessory: e.target.checked })} style={{ width: '20px', height: '20px' }} />
                                                 <span style={{ color: '#aaa', fontSize: '0.85rem' }}>Is Accessory</span>
                                             </div>
+                                        ) : key === 'targetBike' ? (
+                                            <select value={editData[key] || ''} onChange={e => setEditData({ ...editData, [key]: e.target.value })} required style={inputStyle}>
+                                                <option value="">-- Select Bike Compatibility --</option>
+                                                <option value="All Bikes">All Bikes (Universal Accessory)</option>
+                                                {bikes.map(b => <option key={b.id} value={b.name}>{b.name}</option>)}
+                                            </select>
+                                        ) : key === 'targetProductId' ? (
+                                            <select value={editData[key] || ''} onChange={e => setEditData({ ...editData, [key]: e.target.value })} style={inputStyle}>
+                                                <option value="">-- No Linked Product --</option>
+                                                {products.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                                            </select>
+                                        ) : ['price', 'discount', 'rating', 'count', 'stockCount'].includes(key) ? (
+                                            <input type="number" step="any" value={editData[key] || ''} onChange={e => setEditData({ ...editData, [key]: e.target.value })} required={['price', 'stockCount'].includes(key)} placeholder={key.charAt(0).toUpperCase() + key.slice(1)} style={inputStyle} />
                                         ) : (
-                                            <input type="text" value={editData[key] || ''} onChange={e => setEditData({ ...editData, [key]: e.target.value })} style={inputStyle} />
+                                            <input type="text" value={editData[key] || ''} onChange={e => setEditData({ ...editData, [key]: e.target.value })} required style={inputStyle} />
                                         )}
                                     </div>
                                 );
@@ -662,6 +722,6 @@ const btnStyle = { gridColumn: '1 / -1', background: '#FF5722', color: 'white', 
 const tabBtnStyle = { background: 'none', border: 'none', padding: '10px 5px', fontWeight: 'bold', fontSize: '0.8rem', cursor: 'pointer', letterSpacing: '1px' };
 const addBtnStyle = { background: '#FF5722', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '8px', fontWeight: '800', cursor: 'pointer', fontSize: '0.8rem' };
 const listItemStyle = { background: '#0A0A0A', padding: '1rem', borderRadius: '12px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', border: '1px solid #111', textAlign: 'center' };
-const deleteBtnStyle = { background: 'rgba(255,255,255,0.05)', border: '1px solid #222', color: '#444', padding: '5px 12px', borderRadius: '6px', cursor: 'pointer', fontSize: '0.7rem' };
+const deleteBtnStyle = { background: '#F44336', border: 'none', color: 'white', padding: '5px 12px', borderRadius: '6px', cursor: 'pointer', fontSize: '0.7rem', fontWeight: 'bold' };
 
 export default Admin

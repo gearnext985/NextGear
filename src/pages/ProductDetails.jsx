@@ -49,7 +49,6 @@ const ProductDetails = () => {
                 <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                     <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
                         <span style={{ backgroundColor: 'rgba(255,87,34,0.1)', color: '#FF5722', padding: '6px 15px', borderRadius: '30px', fontSize: '0.7rem', fontWeight: 'bold', letterSpacing: '1px' }}>{product.category}</span>
-                        {product.badge && <span style={{ backgroundColor: '#FF5722', color: 'white', padding: '6px 15px', borderRadius: '30px', fontSize: '0.7rem', fontWeight: 'bold' }}>{product.badge}</span>}
                     </div>
 
                     <h1 style={{ fontSize: 'clamp(2rem, 6vw, 3.5rem)', fontWeight: '900', marginBottom: '1rem', lineHeight: '1.1' }}>{product.name}</h1>
@@ -59,7 +58,10 @@ const ProductDetails = () => {
                     </div>
 
                     <div style={{ marginBottom: '2.5rem' }}>
-                        <span style={{ fontSize: 'clamp(2rem, 5vw, 3rem)', fontWeight: '900', color: '#FF5722' }}>₹{product.price}</span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                            <span style={{ fontSize: 'clamp(2rem, 5vw, 3rem)', fontWeight: '900', color: '#FF5722' }}>₹{product.price}</span>
+                            {product.originalPrice && <span style={{ textDecoration: 'line-through', color: '#666', fontSize: '1.5rem', fontWeight: 'bold' }}>₹{product.originalPrice}</span>}
+                        </div>
                         <p style={{ color: '#666', marginTop: '5px', fontSize: '0.9rem' }}>Tax included. Shipping calculated at checkout.</p>
                     </div>
 
@@ -98,10 +100,22 @@ const ProductDetails = () => {
                         </p>
                     </div>
 
+                    {product.stockCount === 0 && (
+                        <div style={{ marginBottom: '1rem', color: '#F44336', fontWeight: 'bold', fontSize: '1.2rem', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <span>⚠️</span> OUT OF STOCK
+                        </div>
+                    )}
+                    {product.stockCount > 0 && product.stockCount <= 3 && (
+                        <div style={{ marginBottom: '1rem', color: '#FF9800', fontWeight: 'bold', backgroundColor: 'rgba(255,152,0,0.1)', padding: '10px 15px', borderRadius: '12px', display: 'inline-flex', alignItems: 'center', gap: '10px', border: '1px solid rgba(255,152,0,0.3)' }}>
+                            <span>🔥</span> Hurry up! Only {product.stockCount} items left in stock!
+                        </div>
+                    )}
+
                     <button
                         onClick={handleAddToCart}
-                        style={{ backgroundColor: '#FF5722', color: 'white', border: 'none', padding: '20px 40px', borderRadius: '16px', fontSize: '1.2rem', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '15px' }}>
-                        <span style={{ fontSize: '1.5rem' }}>🛒</span> ADD TO YOUR BAG
+                        disabled={product.stockCount === 0}
+                        style={{ backgroundColor: product.stockCount === 0 ? '#333' : '#FF5722', color: product.stockCount === 0 ? '#666' : 'white', border: 'none', padding: '20px 40px', borderRadius: '16px', fontSize: '1.2rem', fontWeight: 'bold', cursor: product.stockCount === 0 ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '15px' }}>
+                        <span style={{ fontSize: '1.5rem' }}>{product.stockCount === 0 ? '🚫' : '🛒'}</span> {product.stockCount === 0 ? 'OUT OF STOCK' : 'ADD TO YOUR BAG'}
                     </button>
 
                     {/* Size Chart Section */}

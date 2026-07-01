@@ -15,21 +15,33 @@ const ProductCard = ({ product }) => {
                 border: '1px solid rgba(255,255,255,0.05)'
             }}
         >
-            <div style={{ height: '200px', backgroundColor: '#111', borderRadius: '12px', overflow: 'hidden', marginBottom: '1rem' }}>
+            <div style={{ height: '200px', backgroundColor: '#111', borderRadius: '12px', overflow: 'hidden', marginBottom: '1rem', position: 'relative' }}>
                 <img src={product.image} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                {product.stockCount > 0 && product.stockCount <= 3 && (
+                    <span style={{ position: 'absolute', top: '10px', right: '10px', backgroundColor: '#FF9800', color: 'white', padding: '4px 10px', borderRadius: '20px', fontSize: '0.7rem', fontWeight: 'bold' }}>Only {product.stockCount} left</span>
+                )}
+                {product.stockCount === 0 && (
+                    <div style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <span style={{ backgroundColor: '#F44336', color: 'white', padding: '5px 12px', borderRadius: '6px', fontWeight: 'bold', fontSize: '0.8rem' }}>OUT OF STOCK</span>
+                    </div>
+                )}
             </div>
             <h3 style={{ fontSize: '1.1rem', marginBottom: '0.5rem', color: 'white' }}>{product.name}</h3>
-            <p style={{ color: '#FF5722', fontWeight: 'bold', fontSize: '1.2rem' }}>₹{product.price}</p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <p style={{ color: '#FF5722', fontWeight: 'bold', fontSize: '1.2rem' }}>₹{product.price}</p>
+                {product.originalPrice && <p style={{ textDecoration: 'line-through', color: '#666', fontSize: '0.9rem', fontWeight: 'bold' }}>₹{product.originalPrice}</p>}
+            </div>
             <div style={{ marginTop: '1rem', display: 'flex', gap: '0.5rem' }}>
                 <button
                     onClick={() => addToCart(product)}
+                    disabled={product.stockCount === 0}
                     style={{
                         padding: '8px 15px',
                         borderRadius: '8px',
                         border: 'none',
-                        backgroundColor: '#FF5722',
-                        color: 'white',
-                        cursor: 'pointer',
+                        backgroundColor: product.stockCount === 0 ? '#333' : '#FF5722',
+                        color: product.stockCount === 0 ? '#666' : 'white',
+                        cursor: product.stockCount === 0 ? 'not-allowed' : 'pointer',
                         fontWeight: '600'
                     }}>🛒 Add to Cart</button>
             </div>

@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react'
 import { useSelector } from 'react-redux'
+import { useNavigate } from 'react-router-dom'
 
 const HeroCarousel = () => {
     const slides = useSelector(state => state.data.slides);
     const loading = useSelector(state => state.data.loading);
     const [current, setCurrent] = useState(0)
+    const navigate = useNavigate();
 
     useEffect(() => {
         if (!slides || slides.length === 0) return
@@ -47,7 +49,7 @@ const HeroCarousel = () => {
                     <h4 style={{ color: slide.color || '#FF5722', marginBottom: '1rem', fontSize: '1.2rem' }}>{slide.title}</h4>
                     <h1 style={{ marginBottom: '1.5rem', lineHeight: '1' }}>{slide.subtitle}</h1>
                     <p style={{ color: '#A0A0A0', fontSize: '1.1rem', marginBottom: '2.5rem' }}>{slide.description}</p>
-                    <button style={{ backgroundColor: slide.color || '#FF5722', color: 'white', padding: '10px 20px', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}>Shop Now</button>
+                    <button onClick={() => navigate(slide.targetProductId ? `/product/${slide.targetProductId}` : '/')} style={{ backgroundColor: slide.color || '#FF5722', color: 'white', padding: '10px 20px', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}>Shop Now</button>
                 </div>
             </div>
             {/* Dots */}

@@ -7,7 +7,14 @@ const ProductCard = ({ product }) => {
     const { addToCart } = useCart();
     return (
         <div style={cardStyle}>
-            {product.badge && <span style={badgeStyle}>{product.badge}</span>}
+            {product.stockCount > 0 && product.stockCount <= 3 && (
+                <span style={{ position: 'absolute', top: '20px', right: '20px', backgroundColor: '#FF9800', color: 'white', padding: '6px 15px', borderRadius: '30px', fontSize: '0.8rem', fontWeight: 'bold', zIndex: 2 }}>Only {product.stockCount} left!</span>
+            )}
+            {product.stockCount === 0 && (
+                <div style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(0,0,0,0.4)', zIndex: 3, display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
+                    <span style={{ backgroundColor: '#F44336', color: 'white', padding: '10px 20px', borderRadius: '8px', fontWeight: 'bold', fontSize: '1rem' }}>OUT OF STOCK</span>
+                </div>
+            )}
             <Link to={`/product/${product.id}`} style={{ textDecoration: 'none' }}>
                 <div style={imageContainerStyle}>
                     <img src={product.image} alt={product.name} style={productImageStyle} />
@@ -18,8 +25,11 @@ const ProductCard = ({ product }) => {
                     <h3 style={productNameStyle}>{product.name}</h3>
                 </Link>
                 <div style={priceContainerStyle}>
-                    <span style={priceStyle}>₹{product.price}</span>
-                    <button onClick={() => addToCart(product)} style={cartBtnStyle}>🛒 Add</button>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={priceStyle}>₹{product.price}</span>
+                        {product.originalPrice && <span style={{ textDecoration: 'line-through', color: '#666', fontSize: '1.1rem', fontWeight: 'bold' }}>₹{product.originalPrice}</span>}
+                    </div>
+                    <button onClick={() => addToCart(product)} disabled={product.stockCount === 0} style={product.stockCount === 0 ? { ...cartBtnStyle, backgroundColor: '#333', color: '#666', cursor: 'not-allowed' } : cartBtnStyle}>🛒 Add</button>
                 </div>
             </div>
         </div>
@@ -61,6 +71,5 @@ const productNameStyle = { fontSize: '1.4rem', fontWeight: 'bold', marginBottom:
 const priceContainerStyle = { display: 'flex', justifyContent: 'space-between', alignItems: 'center' };
 const priceStyle = { fontSize: '1.8rem', fontWeight: '900', color: '#FF5722' };
 const cartBtnStyle = { backgroundColor: '#FF5722', color: 'white', border: 'none', padding: '12px 24px', borderRadius: '15px', fontWeight: 'bold', cursor: 'pointer', fontSize: '0.9rem', letterSpacing: '0.5px' };
-const badgeStyle = { position: 'absolute', top: '20px', right: '20px', backgroundColor: '#FF5722', color: 'white', padding: '6px 15px', borderRadius: '30px', fontSize: '0.8rem', fontWeight: 'bold', zIndex: 2 };
 
 export default NewLaunches

@@ -16,10 +16,6 @@ function Home() {
                 {/* Intro */}
                 <HeroCarousel />
 
-                {/* 1. Offers Section */}
-                <OfferSection />
-
-
                 {/* 3. Bikes Section */}
                 <BikeGrid />
 

@@ -24,7 +24,7 @@ const ProductList = () => {
         } else if (type === 'category') {
             filtered = filtered.filter(p => p.category === name && p.category !== "Accessories");
         } else if (type === 'bike') {
-            filtered = filtered.filter(p => p.targetBike === name);
+            filtered = filtered.filter(p => p.targetBike === name || p.targetBike === 'All Bikes');
         } else if (type === 'accessories') {
             filtered = filtered.filter(p => p.category === "Accessories");
         }
@@ -51,7 +51,14 @@ const ProductList = () => {
                 <div style={productGridStyle}>
                     {products.map((product) => (
                         <div key={product.id} style={cardStyle}>
-                            {product.badge && <span style={badgeStyle}>{product.badge}</span>}
+                            {product.stockCount > 0 && product.stockCount <= 3 && (
+                                <span style={{ position: 'absolute', top: '15px', right: '15px', backgroundColor: '#FF9800', color: 'white', padding: '5px 12px', borderRadius: '30px', fontSize: '0.7rem', fontWeight: '900', zIndex: 2 }}>Only {product.stockCount} left!</span>
+                            )}
+                            {product.stockCount === 0 && (
+                                <div style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 3, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <span style={{ backgroundColor: '#F44336', color: 'white', padding: '8px 20px', borderRadius: '8px', fontWeight: 'bold' }}>OUT OF STOCK</span>
+                                </div>
+                            )}
                             <Link to={`/product/${product.id}`} style={{ textDecoration: 'none' }}>
                                 <div style={imageContainerStyle}>
                                     <img src={product.image} alt={product.name} style={productImageStyle} />
@@ -65,10 +72,14 @@ const ProductList = () => {
                                     <h3 style={productNameStyle}>{product.name}</h3>
                                 </Link>
                                 <div style={priceContainerStyle}>
-                                    <span style={priceStyle}>₹{product.price}</span>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                        <span style={priceStyle}>₹{product.price}</span>
+                                        {product.originalPrice && <span style={{ textDecoration: 'line-through', color: '#666', fontSize: '0.9rem', fontWeight: 'bold' }}>₹{product.originalPrice}</span>}
+                                    </div>
                                     <button
                                         onClick={() => addToCart(product)}
-                                        style={cartBtnStyle}
+                                        disabled={product.stockCount === 0}
+                                        style={product.stockCount === 0 ? { ...cartBtnStyle, backgroundColor: '#333', color: '#666', cursor: 'not-allowed' } : cartBtnStyle}
                                     >Add to Cart</button>
                                 </div>
                             </div>
@@ -102,6 +113,5 @@ const productNameStyle = { fontSize: '1.2rem', fontWeight: 'bold', marginBottom:
 const priceContainerStyle = { display: 'flex', justifyContent: 'space-between', alignItems: 'center' };
 const priceStyle = { fontSize: '1.5rem', fontWeight: '900', color: '#FF5722' };
 const cartBtnStyle = { backgroundColor: 'white', color: 'black', border: 'none', padding: '10px 20px', borderRadius: '12px', fontWeight: 'bold', cursor: 'pointer' };
-const badgeStyle = { position: 'absolute', top: '15px', right: '15px', backgroundColor: '#FF5722', color: 'white', padding: '5px 12px', borderRadius: '30px', fontSize: '0.7rem', fontWeight: '900', zIndex: 2 };
 
 export default ProductList
