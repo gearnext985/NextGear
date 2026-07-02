@@ -26,7 +26,7 @@ const ProductDetails = () => {
     const availableSizes = product.sizes ? product.sizes.split(',').map(s => s.trim()) : [];
 
     const handleAddToCart = () => {
-        if (product.category !== 'Accessories' && availableSizes.length > 0 && !selectedSize) {
+        if ((product.category === 'Helmets' || product.category === 'Boots' || product.category === 'Jackets') && availableSizes.length > 0 && !selectedSize) {
             alert("Please select a size first!");
             return;
         }
@@ -66,7 +66,7 @@ const ProductDetails = () => {
                     </div>
 
                     {/* Size Selector */}
-                    {product.category !== 'Accessories' && availableSizes.length > 0 && (
+                    {(product.category === 'Helmets' || product.category === 'Boots' || product.category === 'Jackets') && availableSizes.length > 0 && (
                         <div style={{ marginBottom: '3rem' }}>
                             <h4 style={{ fontSize: '0.9rem', color: '#666', marginBottom: '15px' }}>AVAILABLE SIZES</h4>
                             <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
@@ -113,9 +113,9 @@ const ProductDetails = () => {
 
                     <button
                         onClick={handleAddToCart}
-                        disabled={product.stockCount === 0}
-                        style={{ backgroundColor: product.stockCount === 0 ? '#333' : '#FF5722', color: product.stockCount === 0 ? '#666' : 'white', border: 'none', padding: '20px 40px', borderRadius: '16px', fontSize: '1.2rem', fontWeight: 'bold', cursor: product.stockCount === 0 ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '15px' }}>
-                        <span style={{ fontSize: '1.5rem' }}>{product.stockCount === 0 ? '🚫' : '🛒'}</span> {product.stockCount === 0 ? 'OUT OF STOCK' : 'ADD TO YOUR BAG'}
+                        disabled={product.stockCount === 0 || ((product.category === 'Helmets' || product.category === 'Boots' || product.category === 'Jackets') && availableSizes.length > 0 && !selectedSize)}
+                        style={{ backgroundColor: (product.stockCount === 0 || ((product.category === 'Helmets' || product.category === 'Boots' || product.category === 'Jackets') && availableSizes.length > 0 && !selectedSize)) ? '#333' : '#FF5722', color: (product.stockCount === 0 || ((product.category === 'Helmets' || product.category === 'Boots' || product.category === 'Jackets') && availableSizes.length > 0 && !selectedSize)) ? '#666' : 'white', border: 'none', padding: '20px 40px', borderRadius: '16px', fontSize: '1.2rem', fontWeight: 'bold', cursor: (product.stockCount === 0 || ((product.category === 'Helmets' || product.category === 'Boots' || product.category === 'Jackets') && availableSizes.length > 0 && !selectedSize)) ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '15px' }}>
+                        <span style={{ fontSize: '1.5rem' }}>{(product.stockCount === 0 || ((product.category === 'Helmets' || product.category === 'Boots' || product.category === 'Jackets') && availableSizes.length > 0 && !selectedSize)) ? '🚫' : '🛒'}</span> {(product.stockCount === 0 || ((product.category === 'Helmets' || product.category === 'Boots' || product.category === 'Jackets') && availableSizes.length > 0 && !selectedSize)) ? 'SELECT SIZE FIRST' : 'ADD TO YOUR BAG'}
                     </button>
 
                     {/* Size Chart Section */}

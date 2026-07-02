@@ -13,6 +13,18 @@ const ProductList = () => {
 
     const [products, setProducts] = useState([])
     const [loading, setLoading] = useState(true)
+    const [selectedSizes, setSelectedSizes] = useState({})
+
+    const handleSizeSelect = (productId, size) => {
+        setSelectedSizes(prev => ({ ...prev, [productId]: size }))
+    }
+
+    const parseSizes = (sizes) => {
+        if (typeof sizes === 'string') {
+            return sizes.split(',').map(s => s.trim())
+        }
+        return sizes || []
+    }
 
     useEffect(() => {
         if (!isInitialized) return;
@@ -71,15 +83,34 @@ const ProductList = () => {
                                 <Link to={`/product/${product.id}`} style={{ textDecoration: 'none' }}>
                                     <h3 style={productNameStyle}>{product.name}</h3>
                                 </Link>
+                                {(product.category === 'Helmets' || product.category === 'Boots' || product.category === 'Gloves' || product.category === 'Jackets') && product.sizes && (
+                                    <div style={sizeContainerStyle}>
+                                        <span style={sizeLabelStyle}>Size:</span>
+                                        <div style={sizeOptionsStyle}>
+                                            {parseSizes(product.sizes).map((size, index) => (
+                                                <span 
+                                                    key={index} 
+                                                    onClick={() => handleSizeSelect(product.id, size)}
+                                                    style={selectedSizes[product.id] === size ? { ...sizeOptionStyle, backgroundColor: '#FF5722', borderColor: '#FF5722', cursor: 'pointer' } : { ...sizeOptionStyle, cursor: 'pointer' }}
+                                                >
+                                                    {size}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
                                 <div style={priceContainerStyle}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                         <span style={priceStyle}>₹{product.price}</span>
                                         {product.originalPrice && <span style={{ textDecoration: 'line-through', color: '#666', fontSize: '0.9rem', fontWeight: 'bold' }}>₹{product.originalPrice}</span>}
                                     </div>
                                     <button
-                                        onClick={() => addToCart(product)}
-                                        disabled={product.stockCount === 0}
-                                        style={product.stockCount === 0 ? { ...cartBtnStyle, backgroundColor: '#333', color: '#666', cursor: 'not-allowed' } : cartBtnStyle}
+                                        onClick={() => {
+                                            const productWithSize = { ...product, selectedSize: selectedSizes[product.id] }
+                                            addToCart(productWithSize)
+                                        }}
+                                        disabled={product.stockCount === 0 || ((product.category === 'Helmets' || product.category === 'Boots' || product.category === 'Gloves' || product.category === 'Jackets') && !selectedSizes[product.id])}
+                                        style={product.stockCount === 0 || ((product.category === 'Helmets' || product.category === 'Boots' || product.category === 'Gloves' || product.category === 'Jackets') && !selectedSizes[product.id]) ? { ...cartBtnStyle, backgroundColor: '#333', color: '#666', cursor: 'not-allowed' } : cartBtnStyle}
                                     >Add to Cart</button>
                                 </div>
                             </div>
@@ -113,5 +144,9 @@ const productNameStyle = { fontSize: '1.2rem', fontWeight: 'bold', marginBottom:
 const priceContainerStyle = { display: 'flex', justifyContent: 'space-between', alignItems: 'center' };
 const priceStyle = { fontSize: '1.5rem', fontWeight: '900', color: '#FF5722' };
 const cartBtnStyle = { backgroundColor: 'white', color: 'black', border: 'none', padding: '10px 20px', borderRadius: '12px', fontWeight: 'bold', cursor: 'pointer' };
+const sizeContainerStyle = { display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '15px' };
+const sizeLabelStyle = { color: '#999', fontSize: '0.85rem', fontWeight: 'bold' };
+const sizeOptionsStyle = { display: 'flex', gap: '8px', flexWrap: 'wrap' };
+const sizeOptionStyle = { backgroundColor: '#1A1A1A', color: '#fff', padding: '4px 10px', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 'bold', border: '1px solid #333' };
 
 export default ProductList
